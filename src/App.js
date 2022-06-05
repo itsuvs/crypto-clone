@@ -1,24 +1,44 @@
-import logo from './logo.svg';
+import React, {useEffect, useState} from 'react'
 import './App.css';
+import TopTicker from './components/Ticker';
+import CurrencyChanger from './components/CurrencyChanger';
+import CryptoListings from './components/CryptoListings';
+import {Provider} from 'react-redux';
+import {store} from './store';
+import {useCookies} from 'react-cookie'
+import {checkUserCurrency} from './helper/checkUserCurrency'
 
 function App() {
+  const [cookie,setCookie] = useCookies()
+  const [isAllSet, setIsAllSet] = useState(false)
+
+  useEffect(() => {
+    checkUserCurrency(cookie, setCookie)
+    .then(() =>{
+      setIsAllSet(true)
+    })
+  },[])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      {
+        isAllSet
+
+        ?
+
+        <div className="App">
+          <TopTicker/>
+          <CryptoListings/>
+          <CurrencyChanger/>
+        </div>
+
+        :
+
+      <div>
+        Loading...
+      </div>
+      }
+    </Provider>
   );
 }
 
