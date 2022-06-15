@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/crypto-clone/static/css/main.70edf52c.css",
-    "main.js": "/crypto-clone/static/js/main.6a99dece.js",
+    "main.js": "/crypto-clone/static/js/main.0ad35daa.js",
     "static/js/787.402374fc.chunk.js": "/crypto-clone/static/js/787.402374fc.chunk.js",
     "index.html": "/crypto-clone/index.html",
     "main.70edf52c.css.map": "/crypto-clone/static/css/main.70edf52c.css.map",
-    "main.6a99dece.js.map": "/crypto-clone/static/js/main.6a99dece.js.map",
+    "main.0ad35daa.js.map": "/crypto-clone/static/js/main.0ad35daa.js.map",
     "787.402374fc.chunk.js.map": "/crypto-clone/static/js/787.402374fc.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.70edf52c.css",
-    "static/js/main.6a99dece.js"
+    "static/js/main.0ad35daa.js"
   ]
 }
