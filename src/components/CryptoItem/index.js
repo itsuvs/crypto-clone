@@ -1,93 +1,83 @@
-import React from 'react'
-import numberFormatter from '../../helper/numberFormatter'
-import { useCookies } from 'react-cookie'
-import { currencyMultiplier } from '../../helper/currencyMultiplier'
-import { useSelector, useDispatch } from 'react-redux'
-import { fetchMarketData } from '../../store/action'
+import React, { useState } from "react";
+import numberFormatter from "../../helper/numberFormatter";
+import { useCookies } from "react-cookie";
+import { currencyMultiplier } from "../../helper/currencyMultiplier";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchMarketData } from "../../store/action";
+import { CryptoItemBox } from "./style";
+import AccordionRow from "../AccordionRow";
 
-export default function CryptoItem({item, index, setRowInsertedAt, rowInsertedAt}) {
+export default function CryptoItem({
+  item,
+  index
+}) {
+  const data = useSelector((state) => state);
+  const dispatch = useDispatch();
 
-  const data = useSelector(state => state)
-  const dispatch = useDispatch()
-  
-  const [cookie] = useCookies()
-  const userCurrencyData = currencyMultiplier(cookie, data.fiatCurrencyArray)
+  const [cookie] = useCookies();
+  const userCurrencyData = currencyMultiplier(cookie, data.fiatCurrencyArray);
 
-  const getIndex = (e) => {
-    
-    let table = document.getElementById('list-table')
-    let difference = parseInt(e.currentTarget.id) - rowInsertedAt 
-    
-    if ((difference === 0)){
-      table.deleteRow(rowInsertedAt)
-      setRowInsertedAt(0)
-      return
-    }
-    else if(rowInsertedAt !== 0){
-      table.deleteRow(rowInsertedAt)
-    }
+  const [isAccordionActive, setIsAccordionActive] = useState(false);
+  const [isAllSet, setIsAllSet] = useState(false);
 
-    var row = table.insertRow(parseInt(e.currentTarget.id));
-    var cell = row.insertCell(0);
-    cell.setAttribute("colspan", "10")
-    cell.innerHTML = 'Loading...'
-    
-    dispatch(fetchMarketData(item.name.toLowerCase()))
-    .then((res) => {
-      let dummyDiv = document.createElement('div')
-      let exchangeTable = document.createElement('table')
-      let header = exchangeTable.createTHead()
-      let headerRow = header.insertRow(0)
-      let headerRowCellOne = headerRow.insertCell(0).innerHTML = '<b>Exchange</b>'
-      let headerRowCellTwo = headerRow.insertCell(1).innerHTML = '<b>Price</b>'
-      let tableBody = exchangeTable.createTBody()
+  const handleAccordionToggle = () => {
+    setIsAccordionActive(!isAccordionActive);
 
-      for (let i = 0 ; i < res.data.length ; i++){
-        let dataRow = tableBody.insertRow(i)
-        let dataRowCellOne = dataRow.insertCell(0).innerHTML = res.data[i].exchange
-        let dataRowCellTwo = dataRow.insertCell(1).innerHTML = res.data[i].price
-      }
-      
-      dummyDiv.appendChild(exchangeTable)
-      let tableString = dummyDiv.innerHTML
-      cell.innerHTML = tableString
-    })
+    dispatch(fetchMarketData(item.name.toLowerCase())).then((res) => {
+      setIsAllSet(true);
+    });
+  };
 
-    setRowInsertedAt(parseInt(e.currentTarget.id))
+  const marketDataTableRows = data.marketDataArray.map((item, index) => {
+    return (
+      <div className="data-list-item">
+        <div>{item.exchange}</div>
+        <div>{item.price}</div>
+      </div>
+    );
+  });
 
-  }
-  
   return (
-    <tr id={index} onClick={getIndex}>
-      <td className='mobile-hidden'>
-        {item.rank}
-      </td>
-      <td style={{display: 'flex', alignItems: 'center'}}>
-        <img src={item.icon} alt={item.name}/>
-        <div>
+    <CryptoItemBox isAccordionActive={isAccordionActive}>
+      <tr onClick={handleAccordionToggle}>
+        <td className="mobile-hidden">{item.rank}</td>
+        <td style={{ display: "flex", alignItems: "center" }}>
+          <img src={item.icon} alt={item.name} />
           <div>
-            {item.name}
+            <div>{item.name}</div>
+            <div className="item-symbol">{item.symbol}</div>
           </div>
-          <div className='item-symbol'>
-            {item.symbol}
-          </div>
-        </div>
-      </td>
-      <td>
-        {userCurrencyData.symbol} {numberFormatter(parseFloat(item.price) * userCurrencyData.rate)}
-      </td>
-      <td className='mobile-hidden'>
-      {userCurrencyData.symbol} {numberFormatter((item.marketCap) * userCurrencyData.rate)}
-      </td>
-      <td className='mobile-hidden'>
-      {userCurrencyData.symbol} {numberFormatter(item.volume * userCurrencyData.rate)}
-      </td>
-      <td className='mobile-hidden'>
-        {numberFormatter(item.totalSupply)}
-      </td>
-      <td>
-        {item.priceChange1h}%
-      </td>
-    </tr>
-  )
+        </td>
+        <td>
+          {userCurrencyData.symbol}{" "}
+          {numberFormatter(parseFloat(item.price) * userCurrencyData.rate)}
+        </td>
+        <td className="mobile-hidden">
+          {userCurrencyData.symbol}{" "}
+          {numberFormatter(item.marketCap * userCurrencyData.rate)}
+        </td>
+        <td className="mobile-hidden">
+          {userCurrencyData.symbol}{" "}
+          {numberFormatter(item.volume * userCurrencyData.rate)}
+        </td>
+        <td className="mobile-hidden">{numberFormatter(item.totalSupply)}</td>
+        <td>{item.priceChange1h}%</td>
+      </tr>
+      <tr className="accordion">
+        <td colSpan={10}>
+          {isAllSet ? (
+            <div className="market-data-container">
+              <div className="header">
+                <div>Exchange</div>
+                <div>Price</div>
+              </div>
+              <div className="data-list">{marketDataTableRows}</div>
+            </div>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </td>
+      </tr>
+    </CryptoItemBox>
+  );
 }
